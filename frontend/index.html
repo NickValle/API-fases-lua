@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fases da lua - API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+</head>
+<body class="bg-gradient-to-b from-slate-900 to-black min-h-screen bg-black flex items-center justify-center text-white">
+
+    <div class="bg-black backdrop-blur-md p-8 rounded-2xl shadow-xl max-h-lg max-w-lg flex flex-col items-center">
+        <h1 class=" text-center text-2xl font-bold mb-4">
+            Fase da Lua
+        </h1>
+        <p class="text-center text-sm text-gray-300 mb-4">
+            Basta inserir a data desejada para descobrir qual será a fase da lua nesse dia.
+        </p>
+        <input type="date" id="data-input" class="mb-4 px-4 py-2 bg-white/10 text-white rounded-full w-full">
+        <img id="lua-img" class="mx-auto w-full mb-6" alt="">
+
+        <p id="fase" class="text-lg font-semibold"></p>
+        <p id="iluminacao" class="text-sm text-gray-300 mt-1"></p>
+        <p id="descricao" class="text-sm text-gray-400 mt-2"></p>
+
+        <button id="buscar" class="mt-6 px-6 py-2 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition ">
+            Buscar Fase
+        </button>
+    </div>
+
+    <audio id="background-music" autoplay loop>
+        <source src="music/background.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <script>
+    async function carregarLua(data = null) {
+      const url = data ? `/lua/${data}` : "/lua/hoje";
+      const res = await fetch(url);
+      const dados = await res.json();
+
+      document.getElementById("lua-img").src = dados.imagem;
+      document.getElementById("fase").innerText = dados.fase;
+      document.getElementById("iluminacao").innerText =
+        `Iluminação: ${dados.iluminacao}%`;
+      document.getElementById("descricao").innerText = dados.descricao;
+    }
+
+    document.getElementById("buscar").addEventListener("click", () => {
+      const selectedDate = document.getElementById("data-input").value;
+      carregarLua(selectedDate);
+    });
+
+    document.getElementById("data-input").value = new Date().toISOString().split("T")[0];
+    carregarLua();
+  </script>
+</body>
+</html>
