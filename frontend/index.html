@@ -5,54 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fases da lua - API</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
 </head>
-<body class="bg-gradient-to-b from-slate-900 to-black min-h-screen bg-black flex items-center justify-center text-white">
+<body class="bg-gradient-to-b from-slate-900 to-black min-h-screen flex items-center justify-center text-white p-4 sm:p-8">
 
-    <div class="bg-black backdrop-blur-md p-8 rounded-2xl shadow-xl max-h-lg max-w-lg flex flex-col items-center">
-        <h1 class=" text-center text-2xl font-bold mb-4">
+    <div class="bg-black backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-lg flex flex-col items-center">
+        <h1 class="text-center text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">
             Fase da Lua
         </h1>
-        <p class="text-center text-sm text-gray-300 mb-4">
+        <p class="text-center text-xs sm:text-sm text-gray-300 mb-4 sm:mb-6 max-w-sm">
             Basta inserir a data desejada para descobrir qual será a fase da lua nesse dia.
         </p>
-        <input type="date" id="data-input" class="mb-4 px-4 py-2 bg-white/10 text-white rounded-full w-full">
-        <img id="lua-img" class="mx-auto w-full mb-6" alt="">
+        <input type="date" id="data-input" class="mb-6 px-4 py-2 bg-white/10 text-white rounded-full w-full text-sm sm:text-base border border-white/20 focus:border-white/50 focus:outline-none transition">
+        <img id="lua-img" class="mx-auto w-64 sm:w-96 h-64 sm:h-96 mb-6 object-contain" alt="">
 
-        <p id="fase" class="text-lg font-semibold"></p>
-        <p id="iluminacao" class="text-sm text-gray-300 mt-1"></p>
-        <p id="descricao" class="text-sm text-gray-400 mt-2"></p>
-
-        <button id="buscar" class="mt-6 px-6 py-2 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition ">
-            Buscar Fase
-        </button>
+        <div class="w-full space-y-2 sm:space-y-3">
+            <p id="fase" class="text-lg sm:text-xl font-semibold"></p>
+            <p id="iluminacao" class="text-xs sm:text-sm text-gray-300"></p>
+            <p id="descricao" class="text-xs sm:text-sm text-gray-400 leading-relaxed text-justify"></p>
+        </div>
     </div>
 
-    <audio id="background-music" autoplay loop>
-        <source src="music/background.mp3" type="audio/mpeg">
+    <audio id="background-music" loop>
+        <source src="/music/soundMoon.mp3" type="audio/mpeg">
         Seu navegador não suporta o elemento de áudio.
     </audio>
 
+    <div class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6">
+        <button id="audio-btn" class="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full font-semibold transition text-sm sm:text-base whitespace-nowrap" title="Clique para ligar/desligar a música">
+            🔊 Música
+        </button>
+    </div>
+
     <script>
-    async function carregarLua(data = null) {
-      const url = data ? `/lua/${data}` : "/lua/hoje";
-      const res = await fetch(url);
-      const dados = await res.json();
+        const audio = document.getElementById("background-music");
+        const audioBtn = document.getElementById("audio-btn");
+        let isPlaying = false;
 
-      document.getElementById("lua-img").src = dados.imagem;
-      document.getElementById("fase").innerText = dados.fase;
-      document.getElementById("iluminacao").innerText =
-        `Iluminação: ${dados.iluminacao}%`;
-      document.getElementById("descricao").innerText = dados.descricao;
-    }
+        audioBtn.addEventListener("click", () => {
+            if (isPlaying) {
+                audio.pause();
+                audioBtn.textContent = "🔇 Música";
+                isPlaying = false;
+            } else {
+                audio.play().catch(err => console.log("Autoplay bloqueado"));
+                audioBtn.textContent = "🔊 Música";
+                isPlaying = true;
+            }
+        });
 
-    document.getElementById("buscar").addEventListener("click", () => {
-      const selectedDate = document.getElementById("data-input").value;
-      carregarLua(selectedDate);
-    });
+        async function carregarLua(data = null) {
+            const url = data ? `/lua/${data}` : "/lua/hoje";
+            const res = await fetch(url);
+            const dados = await res.json();
 
-    document.getElementById("data-input").value = new Date().toISOString().split("T")[0];
-    carregarLua();
-  </script>
+            document.getElementById("lua-img").src = dados.imagem;
+            document.getElementById("fase").innerText = dados.fase;
+            document.getElementById("iluminacao").innerText = `Iluminação: ${dados.iluminacao}%`;
+            document.getElementById("descricao").innerText = dados.descricao;
+        }
+
+        document.getElementById("data-input").value = new Date().toISOString().split("T")[0];
+        
+        document.getElementById("data-input").addEventListener("change", () => {
+            const selectedDate = document.getElementById("data-input").value;
+            carregarLua(selectedDate);
+        });
+
+        carregarLua();
+    </script>
 </body>
 </html>

@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, "frontend")));
 app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/music", express.static(path.join(__dirname, "frontend/music")));
 
 function calcularFaseLua(data = new Date()) {
   const lp = 2551443;
