@@ -37,10 +37,14 @@
     </div>
 
     <script>
+        // Cache simples para evitar requisições repetidas
+        const cache = {};
         const audio = document.getElementById("background-music");
         const audioBtn = document.getElementById("audio-btn");
+        const dataInput = document.getElementById("data-input");
         let isPlaying = false;
 
+        // Controle de áudio
         audioBtn.addEventListener("click", () => {
             if (isPlaying) {
                 audio.pause();
@@ -54,23 +58,65 @@
         });
 
         async function carregarLua(data = null) {
-            const url = data ? `/lua/${data}` : "/lua/hoje";
-            const res = await fetch(url);
-            const dados = await res.json();
+            try {
+                const dataStr = data || new Date().toISOString().split("T")[0];
+                
+                // Verificar cache
+                if (cache[dataStr]) {
+                    exibirDados(cache[dataStr]);
+                    return;
+                }
 
-            document.getElementById("lua-img").src = dados.imagem;
+                // Mostrar loading
+                const faseEl = document.getElementById("fase");
+                faseEl.textContent = "Carregando...";
+
+                // Buscar dados
+                const url = data ? `/lua/${data}` : `/lua`;
+                const res = await fetch(url);
+                
+                if (!res.ok) {
+                    const erro = await res.json();
+                    exibirErro(erro.error || "Erro ao carregar dados");
+                    return;
+                }
+                
+                const dados = await res.json();
+                
+                // Armazenar em cache
+                cache[dataStr] = dados;
+                
+                // Exibir dados
+                exibirDados(dados);
+            } catch (error) {
+                exibirErro("Erro na conexão com o servidor");
+                console.error(error);
+            }
+        }
+
+        function exibirDados(dados) {
+            document.getElementById("lua-img").src = `/images/${dados.imagem}`;
             document.getElementById("fase").innerText = dados.fase;
             document.getElementById("iluminacao").innerText = `Iluminação: ${dados.iluminacao}%`;
             document.getElementById("descricao").innerText = dados.descricao;
         }
 
-        document.getElementById("data-input").value = new Date().toISOString().split("T")[0];
-        
-        document.getElementById("data-input").addEventListener("change", () => {
-            const selectedDate = document.getElementById("data-input").value;
-            carregarLua(selectedDate);
+        function exibirErro(mensagem) {
+            document.getElementById("fase").textContent = "Erro";
+            document.getElementById("iluminacao").textContent = mensagem;
+            document.getElementById("descricao").textContent = "";
+            console.error(mensagem);
+        }
+
+        // Event listeners
+        dataInput.addEventListener("change", (e) => {
+            if (e.target.value) {
+                carregarLua(e.target.value);
+            }
         });
 
+        // Inicializar
+        dataInput.value = new Date().toISOString().split("T")[0];
         carregarLua();
     </script>
 </body>
