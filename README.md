@@ -34,6 +34,24 @@ Aplicação web que mostra:
 
 ---
 
+## 🚀 Como rodar o projeto
+
+```bash
+1. Clone o repositório:
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+
+2. Acesse a pasta do projeto:
+cd api-lua
+
+3. Instale as dependências:
+npm install
+
+Rode o projeto:
+npm run dev
+A API estará disponível na porta:
+http://localhost:3000/lua/hoje
+```
+
 ## 🧠 Como funciona
 
 A fase da Lua é calculada localmente com base no ciclo lunar médio, sem depender de outras APIs externas.
@@ -55,6 +73,7 @@ Retorna a fase atual da Lua.
 
 Exemplo de resposta:
 
+
 ```json
 {
   "data": "2026-02-13",
@@ -62,3 +81,5 @@ Exemplo de resposta:
   "iluminacao": 98,
   "imagem": "http://localhost:3000/images/lua-cheia.png"
 }
+
+
